@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File to PDF Converter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .file-input {
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Convert Files to PDF</h1>
+        <input type="file" class="file-input" accept=".doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.txt" />
+        <br>
+        <button onclick="convertToPDF()">Convert</button>
+    </div>
+    <script>
+        // Define a function named convertToPDF that will handle the file conversion
+        function convertToPDF() {
+            // Get the file input element with the class 'file-input'
+            const fileInput = document.querySelector('.file-input');
+    
+            // Get the first file from the file input
+            const file = fileInput.files[0];
+    
+            // Check if a file is selected
+            if (!file) {
+                // Alert the user if no file is selected and exit the function
+                alert('Please select a file.');
+                return;
+            }
+    
+            // Create a new FormData object to hold the file data
+            const formData = new FormData();
+            
+            // Append the selected file to the FormData object
+            formData.append('file', file);
+    
+            // Use the fetch API to send the file to the server
+            fetch('/convert', {
+                method: 'POST', // Use the POST method
+                body: formData // Set the request body to the FormData object containing the file
+            })
+            .then(response => {
+                // Check if the server response is not OK
+                if (!response.ok) {
+                    // Throw an error with the response text
+                    return response.text().then(text => { throw new Error(text); });
+                }
+                // Return the response as a blob (binary large object)
+                return response.blob();
+            })
+            .then(blob => {
+                // Create a URL for the blob object
+                const url = window.URL.createObjectURL(blob);
+    
+                // Create a temporary anchor element
+                const a = document.createElement('a');
+                
+                // Set the href attribute of the anchor to the blob URL
+                a.href = url;
+    
+                // Set the download attribute of the anchor to the original file name with a .pdf extension
+                a.download = `${file.name.replace(/\.[^/.]+$/, '')}.pdf`;
+    
+                // Append the anchor to the document body
+                document.body.appendChild(a);
+    
+                // Programmatically click the anchor to trigger the download
+                a.click();
+    
+                // Remove the anchor from the document body
+                a.remove();
+            })
+            .catch(error => {
+                // Log the error to the console
+                console.error('Error:', error);
+    
+                // Alert the user with the error message
+                alert(`Error: ${error.message}`);
+            });
+        }
+    </script>    
+</body>
+</html>
