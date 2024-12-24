@@ -24,6 +24,10 @@
         .file-input {
             margin-bottom: 20px;
         }
+        .message {
+            margin-top: 20px;
+            color: #007bff;
+        }
         button {
             padding: 10px 20px;
             background-color: #007bff;
@@ -43,6 +47,7 @@
         <input type="file" class="file-input" accept=".doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.txt" />
         <br>
         <button onclick="convertToPDF()">Convert</button>
+        <p class="message" style="display: none;"></p>
     </div>
     <script>
         // Define a function named convertToPDF that will handle the file conversion
@@ -59,6 +64,11 @@
                 alert('Please select a file.');
                 return;
             }
+
+            // Display the conversion message with the file name
+            const message = document.querySelector('.message');
+            message.textContent = `We started converting your file! The download will start when your file: "${file.name}" is converted.`;
+            message.style.display = 'block';
     
             // Create a new FormData object to hold the file data
             const formData = new FormData();
@@ -101,6 +111,12 @@
     
                 // Remove the anchor from the document body
                 a.remove();
+
+                // Hide the conversion message
+                message.style.display = 'none';
+    
+                // Clear the file input
+                fileInput.value = '';
             })
             .catch(error => {
                 // Log the error to the console
@@ -108,8 +124,14 @@
     
                 // Alert the user with the error message
                 alert(`Error: ${error.message}`);
+    
+                // Hide the conversion message
+                message.style.display = 'none';
+    
+                // Clear the file input
+                fileInput.value = '';
             });
         }
-    </script>    
+    </script>
 </body>
 </html>
